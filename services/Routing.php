@@ -2,15 +2,23 @@
 
 namespace Murmur\Services;
 
+use Murmur\Controllers\RoomController;
+
 class Routing
 {
     public function handleRequest()
     {
-        // recup action dans url
         $action = $_GET['action'] ?? 'home';
+        $id = $_GET['id'] ?? null;
+        $roomCtrl = new RoomController();
 
-        // test
-        echo "<h1>Bienvenue sur Murmur</h1>";
-        echo "<p>L'infrastructure MVC est prête. Action actuelle : <strong>$action</strong></p>";
+        switch ($action) {
+            case 'room':
+                $roomCtrl->show($id);
+                break;
+            default:
+                $roomCtrl->index();
+                break;
+        }
     }
 }

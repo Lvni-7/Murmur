@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Murmur - Tchat Anonyme</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="brand-container">
+                <a href="index.php">
+                    <img src="assets/img/logo.png" alt="Logo Murmur" class="app-logo">
+                </a>
+            </div>
+
+            <a href="?action=add_room" class="add-room-btn">+ Nouveau Salon</a>
+
+            <nav class="room-list">
+                <?php foreach ($rooms as $room): ?>
+                    <a href="?action=room&id=<?= $room->getId() ?>"
+                        class="room-link <?= ($activeRoom && $activeRoom->getId() === $room->getId()) ? 'active' : '' ?>">
+                        <span class="hashtag">#</span> <?= htmlspecialchars($room->getName()) ?>
+                    </a>
+                <?php endforeach; ?>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <?php include $view; ?>
+        </main>
+    </div>
+</body>
+
+</html>
