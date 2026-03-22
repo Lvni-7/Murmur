@@ -1,24 +1,49 @@
 <?php
 
-namespace Murmur\Services;
+namespace App\Services;
 
-use Murmur\Controllers\RoomController;
+use App\Controllers\RoomController;
+use App\Controllers\MessageController;
+use App\Controllers\AboutController;
 
 class Routing
 {
-    public function handleRequest()
+    public function handleRequest(): void
     {
         $action = $_GET['action'] ?? 'home';
-        $id = $_GET['id'] ?? null;
-        $roomCtrl = new RoomController();
 
         switch ($action) {
+            case 'home':
+                $controller = new RoomController();
+                $controller->index();
+                break;
             case 'room':
-                $roomCtrl->show($id);
+                $controller = new RoomController();
+                $controller->show();
+                break;
+            case 'create-room':
+                $controller = new RoomController();
+                $controller->create();
+                break;
+            case 'send-message':
+                $controller = new MessageController();
+                $controller->send();
+                break;
+            case 'pin-message':
+                $controller = new MessageController();
+                $controller->pin();
+                break;
+            case 'unpin-message':
+                $controller = new MessageController();
+                $controller->unpin();
+                break;
+            case 'about':
+                $controller = new AboutController();
+                $controller->index();
                 break;
             default:
-                $roomCtrl->index();
-                break;
+                header("Location: index.php?action=home");
+                exit();
         }
     }
 }

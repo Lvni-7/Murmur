@@ -1,30 +1,32 @@
 <?php
 
-namespace Murmur\Services;
+namespace App\Services;
 
-require_once 'configs/settings.php';
+use PDO;
+use PDOException;
 
-abstract class Database
+class Database
 {
-    private static $_db;
+    private static ?PDO $instance = null;
 
-    protected function getDb()
+    // connect db
+    public static function connect(): PDO
     {
-        if (self::$_db === null) {
+        if (self::$instance === null) {
             try {
-                self::$_db = new \PDO(
-                    'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8',
+                self::$instance = new PDO(
+                    "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
                     DB_USER,
                     DB_PASS,
                     [
-                        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                        \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
                     ]
                 );
-            } catch (\Exception $e) {
-                die('Erreur de connexion : ' . $e->getMessage());
+            } catch (PDOException $e) {
+                die("Database connection failed: " . $e->getMessage());
             }
         }
-        return self::$_db;
+        return self::$instance;
     }
 }

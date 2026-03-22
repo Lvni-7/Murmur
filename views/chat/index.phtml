@@ -1,0 +1,58 @@
+<?php if ($activeRoom): ?>
+    <div class="room-title">
+        <h1><?= htmlspecialchars($activeRoom->getName()) ?></h1>
+    </div>
+
+    <?php if ($pinnedMessage): ?>
+        <div class="pinned-banner">
+            <div class="pinned-content">
+                <span class="pinned-tag">Épinglé</span>
+                <p><?= htmlspecialchars($pinnedMessage->getContent()) ?></p>
+            </div>
+            <a href="index.php?action=unpin-message&id=<?= $pinnedMessage->getId() ?>&room_id=<?= $activeRoom->getId() ?>" class="unpin-btn">Retirer</a>
+        </div>
+    <?php endif; ?>
+
+    <div class="messages-container" id="messagesContainer">
+        <?php if (empty($messages)): ?>
+            <p class="empty-notif">Aucun message ici.</p>
+        <?php else: ?>
+            <?php foreach ($messages as $message): ?>
+                <div class="message-card">
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-timestamp"><?= date('d/m/Y H:i', strtotime($message->getCreatedAt())) ?></span>
+                        </div>
+                        <div class="message-body">
+                            <?= htmlspecialchars($message->getContent()) ?>
+                        </div>
+                    </div>
+                    <div class="message-actions">
+                        <a href="index.php?action=pin-message&id=<?= $message->getId() ?>&room_id=<?= $activeRoom->getId() ?>" class="pin-message-link">Épingler</a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </div>
+
+    <form action="index.php?action=send-message" method="POST" class="message-composer">
+        <input type="hidden" name="room_id" value="<?= $activeRoom->getId() ?>">
+        <div class="input-group">
+            <input type="text" name="content" placeholder="Message..." required autocomplete="off">
+            <button type="submit">Envoyer</button>
+        </div>
+    </form>
+
+<?php else: ?>
+    <div class="no-active-room">
+        <h2>Murmur</h2>
+        <p>Sélectionnez un salon pour commencer.</p>
+    </div>
+<?php endif; ?>
+
+<script>
+    const msgContainer = document.getElementById('messagesContainer');
+    if (msgContainer) {
+        msgContainer.scrollTop = msgContainer.scrollHeight;
+    }
+</script>

@@ -1,28 +1,65 @@
 <?php
 
-namespace Murmur\Controllers;
+namespace App\Controllers;
 
-use Murmur\Repository\RoomRepository;
+use App\Repository\RoomRepository;
+use App\Repository\MessageRepository;
 
 class RoomController
 {
-    public function index()
-    {
-        $roomRepo = new RoomRepository();
-        $rooms = $roomRepo->findAll();
-        $activeRoom = null; // aucun salon select sur l'accueil
+    private RoomRepository $roomRepo;
+    private MessageRepository $messageRepo;
 
-        $view = 'views/room/list.phtml';
-        include 'views/layout.phtml';
+    public function __construct()
+    {
+        $this->roomRepo = new RoomRepository();
+        $this->messageRepo = new MessageRepository();
     }
 
-    public function show($id)
+    // On prépare tout pour la page d'accueil
+    public function index(): void
     {
-        $roomRepo = new RoomRepository();
-        $rooms = $roomRepo->findAll();
-        $activeRoom = $roomRepo->find((int)$id);
+        $rooms = $this->roomRepo->findAll();
+        $activeRoom = $rooms[0] ?? null;
 
-        $view = 'views/room/show.phtml';
-        include 'views/layout.phtml';
+        $messages = [];
+        $pinnedMessage = null;
+        if ($activeRoom) {
+            $messages = $this->messageRepo->findByRoom($activeRoom->getId());
+            $pinnedMessage = $this->messageRepo->getPinnedByRoom($activeRoom->getId());
+        }
+
+        $template = 'views/chat/index.phtml';
+        require_once 'views/layout.phtml';
+    }
+
+    public function show(): void
+    {
+        $id = (int) ($_GET['id'] ?? 0);
+        $rooms = $this->roomRepo->findAll();
+        $activeRoom = $this->roomRepo->findById($id);
+
+        if (!$activeRoom) {
+            header("Location: index.php");
+            exit();
+        }
+
+        $messages = $this->messageRepo->findByRoom($activeRoom->getId());
+        $pinnedMessage = $this->messageRepo->getPinnedByRoom($activeRoom->getId());
+
+        $template = 'views/chat/index.phtml';
+        require_once 'views/layout.phtml';
+    }
+
+    public function create(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = trim($_POST['name'] ?? '');
+            if (!empty($name)) {
+                $this->roomRepo->save($name);
+            }
+        }
+        header("Location: index.php");
+        exit();
     }
 }

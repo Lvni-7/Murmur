@@ -1,37 +1,66 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
     <meta charset="UTF-8">
-    <title>Murmur - Tchat Anonyme</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Murmur</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
     <div class="app-container">
         <aside class="sidebar">
-            <div class="brand-container">
-                <a href="index.php">
-                    <img src="assets/img/logo.png" alt="Logo Murmur" class="app-logo">
-                </a>
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <img src="assets/img/logo.png" alt="Murmur">
+                </div>
+                <h2>Salons</h2>
             </div>
-
-            <a href="?action=add_room" class="add-room-btn">+ Nouveau Salon</a>
 
             <nav class="room-list">
                 <?php foreach ($rooms as $room): ?>
-                    <a href="?action=room&id=<?= $room->getId() ?>"
-                        class="room-link <?= ($activeRoom && $activeRoom->getId() === $room->getId()) ? 'active' : '' ?>">
-                        <span class="hashtag">#</span> <?= htmlspecialchars($room->getName()) ?>
+                    <a href="index.php?action=room&id=<?= $room->getId() ?>"
+                        class="room-item <?= $activeRoom && $activeRoom->getId() === $room->getId() ? 'active' : '' ?>">
+                        <?= htmlspecialchars($room->getName()) ?>
                     </a>
                 <?php endforeach; ?>
             </nav>
+
+            <div class="add-room">
+                <form action="index.php?action=create-room" method="POST">
+                    <button type="button" id="toggleAddRoom">+ Nouveau salon</button>
+                    <div id="addRoomForm" class="hidden">
+                        <input type="text" name="name" placeholder="Nom..." required>
+                        <button type="submit">OK</button>
+                    </div>
+                </form>
+            </div>
         </aside>
 
-        <main class="content">
-            <?php include $view; ?>
+        <main class="main-content">
+            <header class="main-header">
+                <nav class="top-nav">
+                    <a href="index.php?action=home" class="<?= $_GET['action'] !== 'about' ? 'active' : '' ?>">Messages</a>
+                    <a href="index.php?action=about" class="<?= $_GET['action'] === 'about' ? 'active' : '' ?>">À propos</a>
+                </nav>
+            </header>
+
+            <section class="content-area">
+                <?php require_once $template; ?>
+            </section>
         </main>
     </div>
-</body>
 
+    <script>
+        document.getElementById('toggleAddRoom')?.addEventListener('click', () => {
+            const form = document.getElementById('addRoomForm');
+            form.classList.toggle('hidden');
+            if (!form.classList.contains('hidden')) {
+                form.querySelector('input').focus();
+            }
+        });
+    </script>
+</body>
 </html>

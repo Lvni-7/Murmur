@@ -1,25 +1,44 @@
 <?php
 
-namespace Murmur\Repository;
+namespace App\Repository;
 
-use Murmur\Services\Database;
-use Murmur\Models\Room;
+use App\Models\Room;
+use App\Services\Database;
+use PDO;
 
-class RoomRepository extends Database
+class RoomRepository
 {
-    // recup tous les salons pour le menu
-    public function findAll(): array
+    private PDO $db;
+
+    public function __construct()
     {
-        $query = $this->getDb()->query("SELECT * FROM rooms ORDER BY name ASC");
-        return $query->fetchAll(\PDO::FETCH_CLASS, Room::class);
+        $this->db = Database::connect();
     }
 
-    // recup un salon par son id
-    public function find(int $id)
+    public function findAll(): array
     {
-        $query = $this->getDb()->prepare("SELECT * FROM rooms WHERE id = ?");
-        $query->execute([$id]);
-        $query->setFetchMode(\PDO::FETCH_CLASS, Room::class);
-        return $query->fetch();
+        $query = "SELECT * FROM rooms ORDER BY name ASC";
+        $stmt = $this->db->query($query);
+        $rooms = [];
+        while ($data = $stmt->fetch()) {
+            $rooms[] = new Room($data);
+        }
+        return $rooms;
+    }
+
+    public function findById(int $id): ?Room
+    {
+        $query = "SELECT * FROM rooms WHERE id = :id";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(['id' => $id]);
+        $data = $stmt->fetch();
+        return $data ? new Room($data) : null;
+    }
+
+    public function save(string $name): void
+    {
+        $query = "INSERT INTO rooms (name) VALUES (:name)";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute(['name' => $name]);
     }
 }
